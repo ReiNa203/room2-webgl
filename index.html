@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en-us">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Unity WebGL Player | room2</title>
   <link rel="shortcut icon" href="TemplateData/favicon.ico">
   <link rel="stylesheet" href="TemplateData/style.css">
@@ -13,50 +13,98 @@
       margin: 0;
       padding: 0;
       width: 100%;
-      height: 100%;
+      min-height: 100%;
       background: #000;
-      overflow: hidden;
-      touch-action: none;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #page {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0;
+      box-sizing: border-box;
+      background: #000;
     }
 
     #unity-container {
-      position: absolute;
-      width: 100vw;
-      height: 100vh;
+      position: relative;
+      width: 100%;
+      max-width: 1920px;
+      aspect-ratio: 16 / 9;
+      background: #000;
       overflow: hidden;
     }
 
     #unity-canvas {
-      width: 100% !important;
-      height: 100% !important;
-      position: absolute;
-      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: block;
       background: #000;
+      touch-action: pan-y;
+    }
+
+    #unity-loading-bar {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+    }
+
+    #unity-warning {
+      position: absolute;
+      left: 50%;
+      top: 20px;
+      transform: translateX(-50%);
+      z-index: 30;
+      width: calc(100% - 24px);
+      max-width: 900px;
     }
 
     #unity-footer {
       display: none;
     }
 
-    #unity-warning {
-      position: absolute;
-      z-index: 40;
+    @media (max-width: 768px) {
+      #unity-container {
+        width: 100vw;
+        height: 56.25vw; /* 16:9 */
+        max-height: 100dvh;
+      }
+
+      #unity-canvas {
+        width: 100%;
+        height: 100%;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div id="unity-container">
-    <canvas id="unity-canvas" width="1920" height="1080"></canvas>
+  <div id="page">
+    <div id="unity-container">
+      <canvas id="unity-canvas" width="1920" height="1080"></canvas>
 
-    <div id="unity-loading-bar">
-      <div id="unity-logo"></div>
-      <div id="unity-progress-bar-empty">
-        <div id="unity-progress-bar-full"></div>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
       </div>
-    </div>
 
-    <div id="unity-warning"></div>
+      <div id="unity-warning"></div>
+    </div>
   </div>
 
   <script>
@@ -68,11 +116,25 @@
     function unityShowBanner(msg, type) {
       const div = document.createElement("div");
       div.innerHTML = msg;
-      div.style = "background: red; padding: 10px;";
+      div.style = "padding: 10px; margin-bottom: 8px; color: black; font-family: sans-serif;";
+
+      if (type === "error") {
+        div.style.background = "red";
+      } else if (type === "warning") {
+        div.style.background = "yellow";
+      } else {
+        div.style.background = "white";
+      }
+
       warningBanner.appendChild(div);
+
+      if (type !== "error") {
+        setTimeout(() => {
+          if (div.parentNode) div.parentNode.removeChild(div);
+        }, 5000);
+      }
     }
 
-    // 🔥 這裡已幫你改好（重點）
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/ROOM2 BUILD github.loader.js";
 
@@ -103,7 +165,7 @@
     };
 
     script.onerror = () => {
-      alert("loader 載入失敗，請確認 Build 檔案是否完整");
+      alert("loader 載入失敗，請確認 Build 檔案是否完整。");
     };
 
     document.body.appendChild(script);
