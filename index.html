@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Unity WebGL Player | room2</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    #unity-container {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #unity-canvas {
+      width: 100% !important;
+      height: 100% !important;
+      position: absolute;
+      z-index: 10;
+      background: #000;
+    }
+
+    #unity-footer {
+      display: none;
+    }
+
+    #unity-warning {
+      position: absolute;
+      z-index: 40;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="unity-container">
+    <canvas id="unity-canvas" width="1920" height="1080"></canvas>
+
+    <div id="unity-loading-bar">
+      <div id="unity-logo"></div>
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
+      </div>
+    </div>
+
+    <div id="unity-warning"></div>
+  </div>
+
+  <script>
+    const canvas = document.querySelector("#unity-canvas");
+    const loadingBar = document.querySelector("#unity-loading-bar");
+    const progressBarFull = document.querySelector("#unity-progress-bar-full");
+    const warningBanner = document.querySelector("#unity-warning");
+
+    function unityShowBanner(msg, type) {
+      const div = document.createElement("div");
+      div.innerHTML = msg;
+      div.style = "background: red; padding: 10px;";
+      warningBanner.appendChild(div);
+    }
+
+    // 🔥 這裡已幫你改好（重點）
+    const buildUrl = "Build";
+    const loaderUrl = buildUrl + "/ROOM2 BUILD github.loader.js";
+
+    const config = {
+      dataUrl: buildUrl + "/ROOM2 BUILD github.data.unityweb",
+      frameworkUrl: buildUrl + "/ROOM2 BUILD github.framework.js.unityweb",
+      codeUrl: buildUrl + "/ROOM2 BUILD github.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "room2",
+      productVersion: "0.1.0",
+      showBanner: unityShowBanner,
+    };
+
+    loadingBar.style.display = "block";
+
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        progressBarFull.style.width = (100 * progress) + "%";
+      }).then(() => {
+        loadingBar.style.display = "none";
+      }).catch((message) => {
+        alert(message);
+      });
+    };
+
+    script.onerror = () => {
+      alert("loader 載入失敗，請確認 Build 檔案是否完整");
+    };
+
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
